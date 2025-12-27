@@ -64,24 +64,24 @@ struct ContentView: View {
         guard let containerURL = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: "group.com.nisarg.feedanalyzer"
         ) else {
-            print("❌ No container URL")
+            NSLog("❌ No container URL")
             return
         }
         
-        print("✅ Container: \(containerURL.path)")
+        NSLog("✅ Container: \(containerURL.path)")
         
         let queueDir = containerURL.appendingPathComponent("queue")
         if let files = try? FileManager.default.contentsOfDirectory(atPath: queueDir.path) {
-            print("📁 Queue files: \(files)")
+            NSLog("📁 Queue files: \(files)")
         } else {
-            print("📁 Queue directory doesn't exist or is empty")
+            NSLog("📁 Queue directory doesn't exist or is empty")
         }
         
         if let sharedDefaults = UserDefaults(suiteName: "group.com.nisarg.feedanalyzer"),
            let queue = sharedDefaults.stringArray(forKey: "pendingScreenshots") {
-            print("📋 UserDefaults queue: \(queue)")
+            NSLog("📋 UserDefaults queue: \(queue)")
         } else {
-            print("📋 No queue in UserDefaults")
+            NSLog("📋 No queue in UserDefaults")
         }
     }
     
@@ -90,35 +90,47 @@ struct ContentView: View {
     }
     
     private func checkForQueuedScreenshots() {
-        guard let sharedDefaults = UserDefaults(suiteName: "group.com.nisarg.feedanalyzer"),
-              let queue = sharedDefaults.stringArray(forKey: "pendingScreenshots"),
-              !queue.isEmpty else {
+        NSLog("🔍 Checking for queued screenshots...")
+        
+        guard let sharedDefaults = UserDefaults(suiteName: "group.com.nisarg.feedanalyzer") else {
+            NSLog("❌ Could not access shared UserDefaults")
             return
         }
         
+        guard var queue = sharedDefaults.stringArray(forKey: "pendingScreenshots"), !queue.isEmpty else {
+            NSLog("ℹ️ Queue is empty")
+            return
+        }
+        
+        NSLog("📋 Found \(queue.count) screenshots in queue")
         isProcessing = true
         
-        // Process queued screenshots
-        for imagePath in queue {
+        // Process each image and remove from queue immediately
+        while !queue.isEmpty {
+            let imagePath = queue.removeFirst()
+            NSLog("📷 Processing: \(imagePath)")
+            
             if let image = UIImage(contentsOfFile: imagePath) {
                 ScreenshotProcessor.shared.processScreenshot(image) { result in
                     switch result {
-                    case .success:
-                        print("Processed screenshot")
+                    case .success(let post):
+                        NSLog("✅ Processed: \(post.id)")
                     case .failure(let error):
-                        print("Failed to process: \(error)")
+                        NSLog("❌ Failed: \(error)")
                     }
                 }
             }
             
-            // Delete the queued file
+            // Delete file
             try? FileManager.default.removeItem(atPath: imagePath)
+            
+            // Update queue immediately
+            sharedDefaults.set(queue, forKey: "pendingScreenshots")
         }
         
-        // Clear the queue
+        // Final cleanup
         sharedDefaults.set([], forKey: "pendingScreenshots")
         
-        // Refresh posts after processing
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             isProcessing = false
             refreshPosts()

@@ -89,6 +89,8 @@ class PostDatabase {
     
     // MARK: - Post Operations
     
+    private let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+
     func insertPost(_ post: AnalyzedPost) throws {
         let sql = """
         INSERT INTO posts (id, timestamp, image_path, text_content, embedding,
@@ -96,55 +98,123 @@ class PostDatabase {
                           topic_id, topic_probability)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """
-        
+
         var statement: OpaquePointer?
         guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else {
+            let errmsg = String(cString: sqlite3_errmsg(db))
+            NSLog("❌ Prepare failed: \(errmsg)")
             throw DatabaseError.prepareFailed
+        }
+        defer { sqlite3_finalize(statement) }
+
+        // 1) id
+        post.id.uuidString.withCString { cstr in
+            sqlite3_bind_text(statement, 1, cstr, -1, SQLITE_TRANSIENT)
+        }
+
+        // 2) timestamp
+        sqlite3_bind_double(statement, 2, post.timestamp.timeIntervalSince1970)
+
+        // 3) image_path
+        post.imagePath.withCString { cstr in
+            sqlite3_bind_text(statement, 3, cstr, -1, SQLITE_TRANSIENT)
+        }
+
+        // 4) text_content (allow NULL if missing)
+        post.textContent.withCString { cstr in
+            sqlite3_bind_text(statement, 4, cstr, -1, SQLITE_TRANSIENT)
+        }
+
+        // 5) embedding
+        if let embedding = post.embedding {
+            var emb = embedding // ensure contiguous storage for the duration of bind
+            emb.withUnsafeBytes { raw in
+                sqlite3_bind_blob(statement, 5, raw.baseAddress, Int32(raw.count), SQLITE_TRANSIENT)
+            }
+        } else {
+            sqlite3_bind_null(statement, 5)
+        }
+
+        // 6) sentiment_score
+        if let score = post.sentimentScore {
+            sqlite3_bind_double(statement, 6, Double(score))
+        } else {
+            sqlite3_bind_null(statement, 6)
+        }
+
+        // 7) sentiment_label
+        if let label = post.sentimentLabel {
+            label.withCString { cstr in
+                sqlite3_bind_text(statement, 7, cstr, -1, SQLITE_TRANSIENT)
+            }
+        } else {
+            sqlite3_bind_null(statement, 7)
+        }
+
+        // 8) entities JSON
+        if let entitiesData = try? JSONEncoder().encode(post.entities),
+           let json = String(data: entitiesData, encoding: .utf8) {
+            json.withCString { cstr in
+                sqlite3_bind_text(statement, 8, cstr, -1, SQLITE_TRANSIENT)
+            }
+        } else {
+            sqlite3_bind_null(statement, 8)
+        }
+
+        // 9) keywords JSON
+        if let keywordsData = try? JSONEncoder().encode(post.keywords),
+           let json = String(data: keywordsData, encoding: .utf8) {
+            json.withCString { cstr in
+                sqlite3_bind_text(statement, 9, cstr, -1, SQLITE_TRANSIENT)
+            }
+        } else {
+            sqlite3_bind_null(statement, 9)
+        }
+
+        // 10) topic_id
+        if let topicId = post.topicId {
+            sqlite3_bind_int(statement, 10, Int32(topicId))
+        } else {
+            sqlite3_bind_null(statement, 10)
+        }
+
+        // 11) topic_probability
+        if let topicProb = post.topicProbability {
+            sqlite3_bind_double(statement, 11, Double(topicProb))
+        } else {
+            sqlite3_bind_null(statement, 11)
+        }
+
+        let result = sqlite3_step(statement)
+        if result != SQLITE_DONE {
+            let errmsg = String(cString: sqlite3_errmsg(db))
+            NSLog("❌ Insert failed with code \(result): \(errmsg)")
+            throw DatabaseError.insertFailed
+        }
+    }
+
+    
+    // Add this to PostDatabase
+    func debugDatabase() {
+        let sql = "SELECT id, timestamp FROM posts ORDER BY timestamp DESC LIMIT 10;"
+        var statement: OpaquePointer?
+        
+        guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else {
+            NSLog("❌ Failed to prepare debug query")
+            return
         }
         
         defer { sqlite3_finalize(statement) }
         
-        sqlite3_bind_text(statement, 1, post.id.uuidString, -1, nil)
-        sqlite3_bind_double(statement, 2, post.timestamp.timeIntervalSince1970)
-        sqlite3_bind_text(statement, 3, post.imagePath, -1, nil)
-        sqlite3_bind_text(statement, 4, post.textContent, -1, nil)
-        
-        if let embedding = post.embedding {
-            let data = Data(bytes: embedding, count: embedding.count * MemoryLayout<Float>.size)
-            data.withUnsafeBytes { bytes in
-                sqlite3_bind_blob(statement, 5, bytes.baseAddress, Int32(data.count), nil)
-            }
+        NSLog("📊 Database contents:")
+        var count = 0
+        while sqlite3_step(statement) == SQLITE_ROW {
+            let id = String(cString: sqlite3_column_text(statement, 0))
+            let timestamp = sqlite3_column_double(statement, 1)
+            NSLog("  - ID: \(id), Time: \(Date(timeIntervalSince1970: timestamp))")
+            count += 1
         }
-        
-        if let score = post.sentimentScore {
-            sqlite3_bind_double(statement, 6, Double(score))
-        }
-        
-        if let label = post.sentimentLabel {
-            sqlite3_bind_text(statement, 7, label, -1, nil)
-        }
-        
-        if let entitiesData = try? JSONEncoder().encode(post.entities) {
-            let string = String(data: entitiesData, encoding: .utf8)
-            sqlite3_bind_text(statement, 8, string, -1, nil)
-        }
-        
-        if let keywordsData = try? JSONEncoder().encode(post.keywords) {
-            let string = String(data: keywordsData, encoding: .utf8)
-            sqlite3_bind_text(statement, 9, string, -1, nil)
-        }
-        
-        if let topicId = post.topicId {
-            sqlite3_bind_int(statement, 10, Int32(topicId))
-        }
-        
-        if let topicProb = post.topicProbability {
-            sqlite3_bind_double(statement, 11, Double(topicProb))
-        }
-        
-        guard sqlite3_step(statement) == SQLITE_DONE else {
-            throw DatabaseError.insertFailed
-        }
+        NSLog("  Total rows: \(count)")
     }
     
     func fetchRecentPosts(limit: Int = 100) -> [AnalyzedPost] {

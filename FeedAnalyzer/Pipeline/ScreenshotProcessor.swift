@@ -20,6 +20,8 @@ class ScreenshotProcessor {
             return
         }
         
+        NSLog("📸 Saved image to: \(imagePath)")
+        
         // Extract text using Vision OCR
         extractText(from: image) { result in
             switch result {
@@ -29,11 +31,16 @@ class ScreenshotProcessor {
                     textContent: text
                 )
                 
+                NSLog("📝 Created post with ID: \(post.id)")
+                
                 // Save to database
                 do {
+                    PostDatabase.shared.debugDatabase()
                     try PostDatabase.shared.insertPost(post)
+                    NSLog("✅ Inserted into database")
                     completion(.success(post))
                 } catch {
+                    NSLog("❌ Database insert error: \(error)")
                     completion(.failure(error))
                 }
                 

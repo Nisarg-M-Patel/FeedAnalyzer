@@ -1,111 +1,113 @@
-//
-//  ShareViewController.swift
-//  ShareExtension
-//
-//  Created by Nisarg Patel on 12/26/25.
-//
-
 import UIKit
 import UniformTypeIdentifiers
 
+@objc(ShareViewController)
 class ShareViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        NSLog("📱 ShareVC: viewDidLoad")
         view.backgroundColor = .systemBackground
-        
-        let label = UILabel()
-        label.text = "Processing screenshot..."
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(label)
-        
-        NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
-        
-        handleSharedContent()
+        processSharedImage()
     }
     
-    private func handleSharedContent() {
-        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
-              let itemProvider = extensionItem.attachments?.first else {
+    private func processSharedImage() {
+        NSLog("📱 ShareVC: processSharedImage started")
+        
+        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem else {
+            NSLog("❌ No extension item")
             completeRequest()
             return
         }
         
-        // Check for image
-        if itemProvider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-            itemProvider.loadItem(forTypeIdentifier: UTType.image.identifier, options: nil) { [weak self] (item, error) in
-                guard let self = self else { return }
-                
-                if let error = error {
-                    print("Error loading image: \(error)")
-                    self.completeRequest()
-                    return
-                }
-                
-                var image: UIImage?
-                
-                if let url = item as? URL {
-                    image = UIImage(contentsOfFile: url.path)
-                } else if let data = item as? Data {
-                    image = UIImage(data: data)
-                } else if let img = item as? UIImage {
-                    image = img
-                }
-                
-                if let image = image {
-                    self.processImage(image)
-                } else {
-                    self.completeRequest()
-                }
-            }
-        } else {
+        guard let itemProvider = extensionItem.attachments?.first else {
+            NSLog("❌ No attachments")
             completeRequest()
+            return
         }
-    }
-    
-    private func processImage(_ image: UIImage) {
-        // Queue for background processing
-        queueImageForProcessing(image)
         
-        // Show success and dismiss
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+        NSLog("📱 Has attachment, loading...")
+        
+        itemProvider.loadItem(forTypeIdentifier: UTType.image.identifier, options: nil) { [weak self] (item, error) in
+            if let error = error {
+                NSLog("❌ Load error: \(error)")
+                self?.completeRequest()
+                return
+            }
+            
+            NSLog("📱 Item type: \(type(of: item))")
+            
+            let image: UIImage?
+            if let url = item as? URL {
+                NSLog("📱 Got URL: \(url)")
+                image = UIImage(contentsOfFile: url.path)
+            } else if let data = item as? Data {
+                NSLog("📱 Got Data: \(data.count) bytes")
+                image = UIImage(data: data)
+            } else if let img = item as? UIImage {
+                NSLog("📱 Got UIImage")
+                image = img
+            } else {
+                NSLog("❌ Unknown type")
+                image = nil
+            }
+            
+            if let image = image {
+                NSLog("✅ Have image: \(image.size)")
+                self?.saveToAppGroup(image)
+            } else {
+                NSLog("❌ No image")
+            }
+            
             self?.completeRequest()
         }
     }
     
-    private func queueImageForProcessing(_ image: UIImage) {
-        // Save to shared container for main app to process
+    private func saveToAppGroup(_ image: UIImage) {
+        NSLog("📱 saveToAppGroup called")
+        
         guard let containerURL = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: "group.com.nisarg.feedanalyzer"
         ) else {
-            print("Failed to get shared container")
+            NSLog("❌ No container URL")
             return
         }
+        
+        NSLog("✅ Container: \(containerURL.path)")
+        
+        guard let data = image.jpegData(compressionQuality: 0.8) else {
+            NSLog("❌ Failed to get JPEG data")
+            return
+        }
+        
+        NSLog("✅ JPEG data: \(data.count) bytes")
         
         let queueDir = containerURL.appendingPathComponent("queue")
         try? FileManager.default.createDirectory(at: queueDir, withIntermediateDirectories: true)
         
-        let filename = "\(UUID().uuidString).jpg"
-        let fileURL = queueDir.appendingPathComponent(filename)
+        let fileURL = queueDir.appendingPathComponent("\(UUID().uuidString).jpg")
         
-        if let data = image.jpegData(compressionQuality: 0.8) {
-            try? data.write(to: fileURL)
-            
-            // Notify main app via UserDefaults
-            if let sharedDefaults = UserDefaults(suiteName: "group.com.nisarg.feedanalyzer") {
-                var queue = sharedDefaults.stringArray(forKey: "pendingScreenshots") ?? []
-                queue.append(fileURL.path)
-                sharedDefaults.set(queue, forKey: "pendingScreenshots")
-            }
+        do {
+            try data.write(to: fileURL)
+            NSLog("✅ Saved to: \(fileURL.path)")
+        } catch {
+            NSLog("❌ Write failed: \(error)")
+            return
         }
+        
+        guard let defaults = UserDefaults(suiteName: "group.com.nisarg.feedanalyzer") else {
+            NSLog("❌ No shared defaults")
+            return
+        }
+        
+        var queue = defaults.stringArray(forKey: "pendingScreenshots") ?? []
+        queue.append(fileURL.path)
+        defaults.set(queue, forKey: "pendingScreenshots")
+        NSLog("✅ Queue updated: \(queue)")
     }
     
     private func completeRequest() {
+        NSLog("📱 Completing request")
         extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
     }
 }
