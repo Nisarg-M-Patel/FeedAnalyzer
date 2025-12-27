@@ -6,6 +6,20 @@
 	objectVersion = 56;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		258F3F8F2EFFBE00008A5FF8 /* ConvertModels */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 258F3F922EFFBE00008A5FF8 /* Build configuration list for PBXAggregateTarget "ConvertModels" */;
+			buildPhases = (
+				258F3F942EFFC289008A5FF8 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = ConvertModels;
+			productName = ConvertModels;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		259E7CE62EFF3DC1006F5101 /* FeedAnalyzerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259E7CE52EFF3DC1006F5101 /* FeedAnalyzerApp.swift */; };
 		259E7CE82EFF3DC1006F5101 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259E7CE72EFF3DC1006F5101 /* ContentView.swift */; };
@@ -64,6 +78,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		258F3F932EFFC07E008A5FF8 /* ConvertModels */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ConvertModels; sourceTree = "<group>"; };
 		259E7CE22EFF3DC1006F5101 /* FeedAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FeedAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		259E7CE52EFF3DC1006F5101 /* FeedAnalyzerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedAnalyzerApp.swift; sourceTree = "<group>"; };
 		259E7CE72EFF3DC1006F5101 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -124,6 +139,7 @@
 		259E7CD92EFF3DC1006F5101 = {
 			isa = PBXGroup;
 			children = (
+				258F3F932EFFC07E008A5FF8 /* ConvertModels */,
 				259E7CE42EFF3DC1006F5101 /* FeedAnalyzer */,
 				259E7CF52EFF3DC2006F5101 /* FeedAnalyzerTests */,
 				259E7CFF2EFF3DC2006F5101 /* FeedAnalyzerUITests */,
@@ -307,6 +323,9 @@
 				LastSwiftUpdateCheck = 1510;
 				LastUpgradeCheck = 1510;
 				TargetAttributes = {
+					258F3F8F2EFFBE00008A5FF8 = {
+						CreatedOnToolsVersion = 15.1;
+					};
 					259E7CE12EFF3DC1006F5101 = {
 						CreatedOnToolsVersion = 15.1;
 					};
@@ -340,6 +359,7 @@
 				259E7CF12EFF3DC2006F5101 /* FeedAnalyzerTests */,
 				259E7CFB2EFF3DC2006F5101 /* FeedAnalyzerUITests */,
 				259E7D122EFF3DF2006F5101 /* ShareExtension */,
+				258F3F8F2EFFBE00008A5FF8 /* ConvertModels */,
 			);
 		};
 /* End PBXProject section */
@@ -377,6 +397,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		258F3F942EFFC289008A5FF8 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd \"$PROJECT_DIR/ConvertModels\"\n\nif [ ! -d \"venv\" ]; then\n    python3 -m venv venv\n    source venv/bin/activate\n    pip install -r requirements.txt\nelse\n    source venv/bin/activate\nfi\n\npython3 convert_models.py\n\necho \"✅ Models ready in ConvertModels/output/\"\nopen \"$PROJECT_DIR/ConvertModels/output\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		259E7CDE2EFF3DC1006F5101 /* Sources */ = {
@@ -451,6 +492,26 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		258F3F902EFFBE00008A5FF8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 234U4S24BL;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		258F3F912EFFBE00008A5FF8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 234U4S24BL;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		259E7D042EFF3DC2006F5101 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -765,6 +826,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		258F3F922EFFBE00008A5FF8 /* Build configuration list for PBXAggregateTarget "ConvertModels" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				258F3F902EFFBE00008A5FF8 /* Debug */,
+				258F3F912EFFBE00008A5FF8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		259E7CDD2EFF3DC1006F5101 /* Build configuration list for PBXProject "FeedAnalyzer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

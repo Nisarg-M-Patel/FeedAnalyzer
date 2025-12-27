@@ -1,0 +1,26 @@
+models:
+  nomic_embed:
+    source: "nomic-ai/nomic-embed-text-v1.5"
+    type: "embedding"
+    trust_remote_code: true
+    max_length: 512
+    quantize: 6
+    output_name: "nomic_embed.mlpackage"
+    
+  sentiment:
+    source: "cardiffnlp/twitter-roberta-base-sentiment-latest"
+    type: "sequence_classification"
+    trust_remote_code: false
+    max_length: 512
+    quantize: 6
+    output_name: "sentiment_model.mlpackage"
+    labels: ["negative", "neutral", "positive"]
+
+# Add more models here:
+#  custom_model:
+#    source: "org/model-name"
+#    type: "embedding" | "sequence_classification" | "token_classification"
+#    trust_remote_code: true/false
+#    max_length: 512
+#    quantize: 6  # or 8, 16, null for no quantization
+#    output_name: "custom.mlpackage"
