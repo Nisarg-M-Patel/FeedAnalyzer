@@ -38,10 +38,18 @@ struct ContentView: View {
             .navigationTitle("Feed Analyzer")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Check Embeddings") {
-                        checkEmbeddings()
+                    Menu {
+                        Button("Check Embeddings") {
+                            checkEmbeddings()
+                        }
+                        Button("Reset Database", role: .destructive) {
+                            resetDatabase()
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
                     }
                 }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: refreshPosts) {
                         Image(systemName: "arrow.clockwise")
@@ -58,6 +66,19 @@ struct ContentView: View {
                 checkForQueuedScreenshots()
             }
         }
+    }
+    
+    func resetDatabase() {
+        NSLog("🗑️ Resetting database...")
+            
+            // Just delete all rows - don't try to delete the file
+            PostDatabase.shared.resetDatabase()
+            
+            // Clear posts and refresh
+            posts = []
+            refreshPosts()
+            
+            NSLog("✅ Database reset complete")
     }
     
     func checkEmbeddings() {

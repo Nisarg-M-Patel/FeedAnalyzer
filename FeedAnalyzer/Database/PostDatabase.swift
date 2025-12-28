@@ -195,6 +195,22 @@ class PostDatabase {
 
     
     // Add this to PostDatabase
+    func resetDatabase() {
+        let sql = "DELETE FROM posts"
+        var stmt: OpaquePointer?
+        
+        if sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK {
+            if sqlite3_step(stmt) == SQLITE_DONE {
+                NSLog("✅ All posts deleted from database")
+            } else {
+                NSLog("❌ Failed to delete posts")
+            }
+            sqlite3_finalize(stmt)
+        } else {
+            NSLog("❌ Failed to prepare DELETE statement")
+        }
+    }
+    
     func debugDatabase() {
         let sql = "SELECT id, timestamp FROM posts ORDER BY timestamp DESC LIMIT 10;"
         var statement: OpaquePointer?

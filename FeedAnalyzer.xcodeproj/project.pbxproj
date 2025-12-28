@@ -21,11 +21,11 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		258F3F962F00F85B008A5FF8 /* mpnet_embed_int8.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 258F3F952F00F85B008A5FF8 /* mpnet_embed_int8.mlpackage */; };
 		258F3F982F00F884008A5FF8 /* vocab.txt in Resources */ = {isa = PBXBuildFile; fileRef = 258F3F972F00F884008A5FF8 /* vocab.txt */; };
 		258F3F9A2F00F921008A5FF8 /* WordPieceTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 258F3F992F00F921008A5FF8 /* WordPieceTokenizer.swift */; };
 		258F3F9C2F00F935008A5FF8 /* EmbeddingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 258F3F9B2F00F935008A5FF8 /* EmbeddingModel.swift */; };
 		258F3F9E2F00FDD0008A5FF8 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 258F3F9D2F00FDD0008A5FF8 /* .gitignore */; };
+		258F3FA02F01043B008A5FF8 /* mpnet_embed_int8.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 258F3F9F2F01043B008A5FF8 /* mpnet_embed_int8.mlpackage */; };
 		259E7CE62EFF3DC1006F5101 /* FeedAnalyzerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259E7CE52EFF3DC1006F5101 /* FeedAnalyzerApp.swift */; };
 		259E7CE82EFF3DC1006F5101 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259E7CE72EFF3DC1006F5101 /* ContentView.swift */; };
 		259E7CEA2EFF3DC2006F5101 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 259E7CE92EFF3DC2006F5101 /* Assets.xcassets */; };
@@ -84,11 +84,11 @@
 
 /* Begin PBXFileReference section */
 		258F3F932EFFC07E008A5FF8 /* ConvertModels */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ConvertModels; sourceTree = "<group>"; };
-		258F3F952F00F85B008A5FF8 /* mpnet_embed_int8.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = mpnet_embed_int8.mlpackage; sourceTree = "<group>"; };
 		258F3F972F00F884008A5FF8 /* vocab.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vocab.txt; sourceTree = "<group>"; };
 		258F3F992F00F921008A5FF8 /* WordPieceTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPieceTokenizer.swift; sourceTree = "<group>"; };
 		258F3F9B2F00F935008A5FF8 /* EmbeddingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbeddingModel.swift; sourceTree = "<group>"; };
 		258F3F9D2F00FDD0008A5FF8 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		258F3F9F2F01043B008A5FF8 /* mpnet_embed_int8.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; name = mpnet_embed_int8.mlpackage; path = ../../../../Downloads/mpnet_embed_int8.mlpackage; sourceTree = "<group>"; };
 		259E7CE22EFF3DC1006F5101 /* FeedAnalyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FeedAnalyzer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		259E7CE52EFF3DC1006F5101 /* FeedAnalyzerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedAnalyzerApp.swift; sourceTree = "<group>"; };
 		259E7CE72EFF3DC1006F5101 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -173,7 +173,7 @@
 		259E7CE42EFF3DC1006F5101 /* FeedAnalyzer */ = {
 			isa = PBXGroup;
 			children = (
-				258F3F952F00F85B008A5FF8 /* mpnet_embed_int8.mlpackage */,
+				258F3F9F2F01043B008A5FF8 /* mpnet_embed_int8.mlpackage */,
 				258F3F972F00F884008A5FF8 /* vocab.txt */,
 				259E7D342EFF4AED006F5101 /* Info.plist */,
 				259E7D322EFF49B2006F5101 /* FeedAnalyzer.entitlements */,
@@ -445,9 +445,9 @@
 				259E7D292EFF47B1006F5101 /* Topic.swift in Sources */,
 				259E7D2F2EFF486F006F5101 /* ScreenshotProcessor.swift in Sources */,
 				259E7D2D2EFF4834006F5101 /* PostDatabase.swift in Sources */,
-				258F3F962F00F85B008A5FF8 /* mpnet_embed_int8.mlpackage in Sources */,
 				258F3F9C2F00F935008A5FF8 /* EmbeddingModel.swift in Sources */,
 				259E7D312EFF487D006F5101 /* BackgroundProcessor.swift in Sources */,
+				258F3FA02F01043B008A5FF8 /* mpnet_embed_int8.mlpackage in Sources */,
 				259E7D2B2EFF47BF006F5101 /* DetectedPattern.swift in Sources */,
 				259E7CE82EFF3DC1006F5101 /* ContentView.swift in Sources */,
 				258F3F9A2F00F921008A5FF8 /* WordPieceTokenizer.swift in Sources */,
