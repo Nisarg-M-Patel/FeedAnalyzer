@@ -1,0 +1,17 @@
+# Generated Python envs
+venv/
+.venv/
+
+# Generated CoreML artifacts (too large; rebuild from script)
+*.mlpackage
+*.mlmodel
+*.mlmodelc
+
+# Xcode build noise (optional but recommended)
+DerivedData/
+build/
+*.xcuserstate
+
+# macOS
+.DS_Store
+

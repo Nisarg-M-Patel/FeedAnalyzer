@@ -38,10 +38,10 @@ struct ContentView: View {
             .navigationTitle("Feed Analyzer")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                        Button("Debug") {
-                            debugAppGroup()
-                        }
+                    Button("Check Embeddings") {
+                        checkEmbeddings()
                     }
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: refreshPosts) {
                         Image(systemName: "arrow.clockwise")
@@ -58,6 +58,26 @@ struct ContentView: View {
                 checkForQueuedScreenshots()
             }
         }
+    }
+    
+    func checkEmbeddings() {
+        let posts = PostDatabase.shared.fetchRecentPosts(limit: 10)
+        NSLog("📊 Checking embeddings for \(posts.count) posts:")
+        
+        var withEmbeddings = 0
+        var withoutEmbeddings = 0
+        
+        for post in posts {
+            if let emb = post.embedding {
+                NSLog("  ✅ Post \(post.id.uuidString.prefix(8)): Has embedding (\(emb.count) dims)")
+                withEmbeddings += 1
+            } else {
+                NSLog("  ❌ Post \(post.id.uuidString.prefix(8)): No embedding")
+                withoutEmbeddings += 1
+            }
+        }
+        
+        NSLog("📊 Summary: \(withEmbeddings) with embeddings, \(withoutEmbeddings) without")
     }
     
     func debugAppGroup() {
@@ -148,6 +168,22 @@ struct PostRow: View {
                     .font(.caption)
                     .foregroundColor(.gray)
                 Spacer()
+                
+                // Show embedding status
+                if post.embedding != nil {
+                    HStack(spacing: 4) {
+                        Image(systemName: "cpu")
+                            .font(.caption)
+                        Text("768d")
+                            .font(.caption)
+                    }
+                    .foregroundColor(.blue)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(Color.blue.opacity(0.1))
+                    .cornerRadius(6)
+                }
+                
                 if let sentiment = post.sentimentLabel {
                     SentimentBadge(label: sentiment, score: post.sentimentScore)
                 }

@@ -26,12 +26,23 @@ class ScreenshotProcessor {
         extractText(from: image) { result in
             switch result {
             case .success(let text):
+                NSLog("📝 Extracted text: \(text.prefix(100))...")
+                
+                // Generate embedding
+                let embedding = EmbeddingModel.shared.generateEmbedding(for: text)
+                
                 let post = AnalyzedPost(
                     imagePath: imagePath,
-                    textContent: text
+                    textContent: text,
+                    embedding: embedding
                 )
                 
                 NSLog("📝 Created post with ID: \(post.id)")
+                if let embedding = embedding {
+                    NSLog("✅ Embedding: \(embedding.count) dimensions")
+                } else {
+                    NSLog("⚠️ No embedding generated")
+                }
                 
                 // Save to database
                 do {
@@ -45,6 +56,7 @@ class ScreenshotProcessor {
                 }
                 
             case .failure(let error):
+                NSLog("❌ OCR failed: \(error)")
                 completion(.failure(error))
             }
         }
